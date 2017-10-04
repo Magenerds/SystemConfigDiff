@@ -17,17 +17,6 @@ use Magento\Store\Model\StoreManagerInterface;
 class StoreConfigDataWriter implements DataWriterInterface
 {
     /**
-     * Holds database field names
-     */
-    const LOCAL_VALUE_FIELD_NAME = 'diff_value_local';
-    const REMOTE_VALUE_FIELD_NAME = 'diff_value_remote';
-    const SCOPE_FIELD_NAME = 'scope';
-    const SCOPE_ID_FIELD_NAME = 'scope_id';
-    const PATH_FIELD_NAME = 'path';
-    const SCOPE_VALUE_WEBSITES = 'websites';
-    const SCOPE_VALUE_STORES = 'stores';
-
-    /**
      * Holds further necessary consts
      */
     const DEFAULT_SCOPE_ID = 0;
@@ -101,8 +90,8 @@ class StoreConfigDataWriter implements DataWriterInterface
             foreach ($localValues as $localPath => $localValue) {
                 if (array_key_exists($localPath, $remoteValues)) {
                     $combinedValues[$localPath] = [
-                        self::LOCAL_VALUE_FIELD_NAME => $localValue,
-                        self::REMOTE_VALUE_FIELD_NAME => $remoteValues[$localPath]
+                        DiffConfigResource::LOCAL_VALUE_FIELD_NAME => $localValue,
+                        DiffConfigResource::REMOTE_VALUE_FIELD_NAME => $remoteValues[$localPath]
                     ];
 
                     unset($localValues[$localPath]);
@@ -110,8 +99,8 @@ class StoreConfigDataWriter implements DataWriterInterface
                 }
             }
 
-            $localModels = $this->mapDataToModels($localValues, $scope, self::LOCAL_VALUE_FIELD_NAME);
-            $remoteModels = $this->mapDataToModels($remoteValues, $scope, self::REMOTE_VALUE_FIELD_NAME);
+            $localModels = $this->mapDataToModels($localValues, $scope, DiffConfigResource::LOCAL_VALUE_FIELD_NAME);
+            $remoteModels = $this->mapDataToModels($remoteValues, $scope, DiffConfigResource::REMOTE_VALUE_FIELD_NAME);
             $combinedModels = $this->mapDataToModels($combinedValues, $scope);
 
             $scopeModels = array_merge($localModels, $remoteModels, $combinedModels);
@@ -144,11 +133,11 @@ class StoreConfigDataWriter implements DataWriterInterface
         foreach ($data as $path => $value) {
             /** @var DiffConfigModel $diffConfigModel */
             $diffConfigModel = $this->diffConfigFactory->create();
-            $diffConfigModel->setData(self::SCOPE_FIELD_NAME, $scope);
+            $diffConfigModel->setScope($scope);
 
             $scopeId = self::DEFAULT_SCOPE_ID;
 
-            if ($scope === self::SCOPE_VALUE_WEBSITES || $scope === self::SCOPE_VALUE_STORES) {
+            if ($scope === DiffConfigResource::SCOPE_VALUE_WEBSITES || $scope === DiffConfigResource::SCOPE_VALUE_STORES) {
                 if (empty($path)) {
                     continue;
                 }
@@ -162,17 +151,17 @@ class StoreConfigDataWriter implements DataWriterInterface
                 $code = $splittedPath[0];
                 $path = $splittedPath[1];
 
-                if ($scope === self::SCOPE_VALUE_WEBSITES) {
+                if ($scope === DiffConfigResource::SCOPE_VALUE_WEBSITES) {
                     $scopeId = $this->getWebsiteId($code);
                 }
 
-                if ($scope === self::SCOPE_VALUE_STORES) {
+                if ($scope === DiffConfigResource::SCOPE_VALUE_STORES) {
                     $scopeId = $this->getStoreId($code);
                 }
             }
 
-            $diffConfigModel->setData(self::SCOPE_ID_FIELD_NAME, $scopeId);
-            $diffConfigModel->setData(self::PATH_FIELD_NAME, $path);
+            $diffConfigModel->setScope($scopeId);
+            $diffConfigModel->setPath($path);
 
             if (is_array($value) && is_null($valueField)) {
                 foreach ($value as $fieldName => $v) {
@@ -181,7 +170,6 @@ class StoreConfigDataWriter implements DataWriterInterface
             } else {
                 $diffConfigModel->setData($valueField, $value);
             }
-
 
             $models[] = $diffConfigModel;
         }

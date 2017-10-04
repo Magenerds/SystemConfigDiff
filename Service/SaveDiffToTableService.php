@@ -12,6 +12,7 @@ namespace Magenerds\SystemDiff\Service;
 use Magenerds\SystemDiff\Api\Service\SaveDiffToTableServiceInterface;
 use Magenerds\SystemDiff\DataWriter\DataWriterInterface;
 use Magenerds\SystemDiff\DataWriter\DataWriterPool;
+use Magenerds\SystemDiff\Helper\Config;
 
 /**
  * Class SaveDiffToTableService
@@ -25,16 +26,31 @@ class SaveDiffToTableService implements SaveDiffToTableServiceInterface
     private $writerPool;
 
     /**
-     * StoreConfigDataWriter constructor.
-     * @param DataWriterPool $writerPool
+     * @var Config
      */
-    public function __construct(DataWriterPool $writerPool)
-    {
+    private $configHelper;
+
+    /**
+     * StoreConfigDataWriter constructor.
+     *
+     * @param DataWriterPool $writerPool
+     * @param Config         $configHelper
+     *
+     * @internal param DiffConfigFactory $diffConfigFactory
+     * @internal param DateTime $dateTime
+     * @internal param StoreConfigUpdater $configUpdater
+     */
+    public function __construct(
+        DataWriterPool $writerPool,
+        Config $configHelper
+    ) {
         $this->writerPool = $writerPool;
+        $this->configHelper = $configHelper;
     }
 
     /**
      * @param [] $diffData
+     *
      * @return void
      */
     public function saveData(array $diffData)
@@ -43,5 +59,7 @@ class SaveDiffToTableService implements SaveDiffToTableServiceInterface
             /** @var DataWriterInterface $writer */
             $writer->write($diffData);
         }
+
+        $this->configHelper->updateLastDiffTimestamp();
     }
 }

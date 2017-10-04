@@ -13,26 +13,50 @@ require(
     ['jquery', 'prototype'],
     function(jQuery){
 
+        var buttonId = '<?php echo $block->getElement()->getHtmlId() ?>';
+        var buttonSelector = '#'+buttonId;
+        var infoSelector = buttonSelector+'_info';
+
+        var $info = jQuery(infoSelector);
+        var $button = jQuery(buttonSelector);
+
         function enableSyncButton() {
-            Form.Element.enable('<?php echo $block->getElement()->getHtmlId() ?>');
-            jQuery('#<?php echo $block->getElement()->getHtmlId() ?>').removeClass('disabled');
+            Form.Element.enable(buttonId);
+            $button.removeClass('disabled');
         }
 
         function disableSyncButton() {
-            Form.Element.disable('<?php echo $block->getElement()->getHtmlId() ?>');
-            jQuery('#<?php echo $block->getElement()->getHtmlId() ?>').addClass('disabled');
+            Form.Element.disable(buttonId);
+            $button.addClass('disabled');
         }
 
-        Event.observe(window, 'load', function(){
+        function message(message, type) {
+            $info.html(message);
+            $info.addClass('message');
+
+            if (type === "error") {
+                $info.addClass('message-error');
+            } else {
+                $info.removeClass('message-error');
+            }
+        }
+
+        jQuery(document).ready(function(){
             enableSyncButton();
         });
 
-        jQuery('#<?php echo $block->getElement()->getHtmlId() ?>').click(
+        jQuery(buttonSelector).click(
             function () {
                 disableSyncButton();
+                message('<?php echo __("Performing sync and diff...") ?>');
                 jQuery.get(
                     '<?php echo /* @escapeNotVerified */ $block->getAjaxUrl() ?>'
-                ).always(function(){
+                ).done(function (data) {
+                    message(data.message);
+                }).fail(function (jqXHR, textStatus, errorThrown) {
+                    message(errorThrown, "error");
+
+                }).always(function(){
                     enableSyncButton();
                 })
                 ;
@@ -43,3 +67,4 @@ require(
 </script>
 
 <?php echo $block->getButtonHtml() ?>
+<span id="<?php echo $block->getElement()->getHtmlId() ?>_info" class="magenerds_sync_info"><?php echo $block->getLastSyncInfo(); ?></span>

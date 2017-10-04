@@ -18,6 +18,21 @@ use Magento\Framework\Model\ResourceModel\Db\AbstractDb;
 class DiffConfig extends AbstractDb
 {
     /**
+     * Holds database field names
+     */
+    const LOCAL_VALUE_FIELD_NAME = 'diff_value_local';
+    const REMOTE_VALUE_FIELD_NAME = 'diff_value_remote';
+    const SCOPE_FIELD_NAME = 'scope';
+    const SCOPE_ID_FIELD_NAME = 'scope_id';
+    const PATH_FIELD_NAME = 'path';
+
+    /**
+     * Values for scope
+     */
+    const SCOPE_VALUE_WEBSITES = 'websites';
+    const SCOPE_VALUE_STORES = 'stores';
+
+    /**
      * Resource initialization
      *
      * @return void

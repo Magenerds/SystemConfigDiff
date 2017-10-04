@@ -28,4 +28,36 @@ class DiffConfig extends AbstractModel
     {
         $this->_init(DiffConfigResource::class);
     }
+
+    /**
+     * @param string $value
+     */
+    public function setDiffValueLocal($value)
+    {
+        $this->setData(DiffConfigResource::LOCAL_VALUE_FIELD_NAME, $value);
+    }
+
+    /**
+     * @return string
+     */
+    public function getDiffValueLocal()
+    {
+        return (string)$this->getData(DiffConfigResource::LOCAL_VALUE_FIELD_NAME);
+    }
+
+    /**
+     * @param string $path
+     */
+    public function setPath(string $path)
+    {
+        $this->setData(DiffConfigResource::PATH_FIELD_NAME, $path);
+    }
+
+    /**
+     * @param string $scope
+     */
+    public function setScope(string $scope)
+    {
+        $this->setData(DiffConfigResource::SCOPE_FIELD_NAME, $scope);
+    }
 }

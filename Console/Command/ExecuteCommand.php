@@ -9,6 +9,7 @@
 
 namespace Magenerds\SystemDiff\Console\Command;
 
+use Magenerds\SystemDiff\Helper\Config;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -27,19 +28,33 @@ class ExecuteCommand extends Command
     const COMMAND_DESCRIPTION = 'system-diff:execute';
 
     /**
+     * Exit code when exception occurred
+     */
+    const EXIT_CODE_EXCEPTION = 4;
+
+    /**
      * @var PerformSystemDiffService
      */
     private $performSystemDiffService;
 
     /**
+     * @var Config
+     */
+    private $configHelper;
+
+    /**
      * ExecuteCommand constructor.
+     *
      * @param PerformSystemDiffService $performSystemDiffService
+     * @param Config                   $configHelper
      */
     public function __construct(
-        PerformSystemDiffService $performSystemDiffService
-    ){
+        PerformSystemDiffService $performSystemDiffService,
+        Config $configHelper
+    ) {
         parent::__construct(self::COMMAND_NAME);
         $this->performSystemDiffService = $performSystemDiffService;
+        $this->configHelper = $configHelper;
     }
 
     /**
@@ -54,16 +69,28 @@ class ExecuteCommand extends Command
     }
 
     /**
-     * @param InputInterface $input An InputInterface instance
+     * @param InputInterface  $input  An InputInterface instance
      * @param OutputInterface $output An OutputInterface instance
-     * @return null|int null or 0 if everything went fine, or an error code
+     *
+     * @return int 0 if everything went fine, or an error code
      */
     public function execute(InputInterface $input, OutputInterface $output)
     {
+        $exitStatus = 0;
         try {
+            $output->write('Performing sync and diff...');
             $this->performSystemDiffService->performDiff();
+            $output->writeln(
+                sprintf(
+                    'Done at %s.',
+                    $this->configHelper->getLastSyncDatetimeFormatted()
+                )
+            );
         } catch (\Exception $e) {
+            $exitStatus = self::EXIT_CODE_EXCEPTION;
             $output->writeln(sprintf('An error occurred during diff: %s', $e->getMessage()));
         }
+
+        return $exitStatus;
     }
 }

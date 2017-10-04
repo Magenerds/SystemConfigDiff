@@ -40,7 +40,7 @@
                     REST: http[s]://[remotehost]/index.php/rest/all/V1/systemConfig/all<br>
                     SOAP: http[s]://[remotehost]/soap?wsdl&services=magenerdsSystemDiffServiceFetchLocalDataServiceV1<br>
                     <br>
-                    See <a href="http://devdocs.magento.com/guides/v2.2/get-started/soap/soap-web-api-calls.html">http://devdocs.magento.com/guides/v2.2/get-started/soap/soap-web-api-calls.html</a>
+                    See <a href="http://devdocs.magento.com/guides/v2.2/get-started/soap/soap-web-api-calls.html" target="_blank">http://devdocs.magento.com/guides/v2.2/get-started/soap/soap-web-api-calls.html</a>
                     ]]></comment>
                 </field>
                 <field id="access_token" translate="label" type="text" sortOrder="30" showInDefault="1" showInStore="0" showInWebsite="0">

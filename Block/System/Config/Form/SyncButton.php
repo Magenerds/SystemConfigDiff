@@ -9,6 +9,7 @@
 
 namespace Magenerds\SystemDiff\Block\System\Config\Form;
 
+use Magenerds\SystemDiff\Helper\Config;
 use Magento\Config\Block\System\Config\Form\Field;
 use Magento\Framework\Data\Form\Element\AbstractElement;
 
@@ -25,14 +26,40 @@ class SyncButton extends Field
     protected $element;
 
     /**
+     * @var Config
+     */
+    public $configHelper;
+
+    /**
+     * SyncButton constructor.
+     *
+     * Additionally injects config helper.
+     *
+     * @param \Magento\Backend\Block\Template\Context $context
+     * @param array                                   $data
+     * @param Config                                  $configHelper
+     */
+    public function __construct(
+        \Magento\Backend\Block\Template\Context $context,
+        Config $configHelper,
+        array $data = []
+    ) {
+        $this->configHelper = $configHelper;
+
+        parent::__construct($context, $data);
+    }
+
+    /**
      * Remove scope label
      *
      * @param  AbstractElement $element
+     *
      * @return string
      */
     public function render(AbstractElement $element)
     {
         $element->unsScope()->unsCanUseWebsiteValue()->unsCanUseDefaultValue();
+
         return parent::render($element);
     }
 
@@ -40,6 +67,7 @@ class SyncButton extends Field
      * Return element html
      *
      * @param  AbstractElement $element
+     *
      * @return string
      */
     protected function _getElementHtml(AbstractElement $element)
@@ -73,13 +101,31 @@ class SyncButton extends Field
         );
         $button->setData(
             [
-                'id' => $this->element->getHtmlId(),
+                'id'    => $this->element->getHtmlId(),
                 'label' => __('Run'),
                 'class' => 'disabled' // reset when page loaded, see template script
             ]
         );
 
         return $button->toHtml();
+    }
+
+    /**
+     * Returns info about last sync date time as a string for usage in "'"-JS string.
+     *
+     * @return string
+     */
+    public function getLastSyncInfo()
+    {
+        $formattedDateTime = $this->configHelper->getLastSyncDatetimeFormatted();
+
+        return (string)filter_var(
+            sprintf(
+                __('Last diff on %s'),
+                $formattedDateTime
+            ),
+            FILTER_SANITIZE_MAGIC_QUOTES
+        );
     }
 
     /**
